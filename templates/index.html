@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Translate - AI Powered</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        textarea {
+            resize: vertical; /* Keep vertical resize */
+        }
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3); /* Light border for contrast on blue */
+            border-left-color: #ffffff; /* White spinner part */
+            border-radius: 50%;
+            width: 20px; /* Slightly smaller to fit button */
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Custom scrollbar for textareas (optional, WebKit browsers) */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f5f9; /* slate-100 */
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-slate-100 text-slate-800">
+
+    <header class="bg-white shadow-sm w-full border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-blue-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 .42-4.823a1.125 1.125 0 0 1 1.125-1.125h9.75c.566 0 1.059.223 1.427.586A11.116 11.116 0 0 1 18 5.621m-15 0A11.039 11.039 0 0 0 6 11.621V16.5a1.5 1.5 0 0 0 .832 1.342l5.143 2.571a.375.375 0 0 0 .332 0l5.143-2.571A1.5 1.5 0 0 0 18 16.5v-4.879a11.038 11.038 0 0 0 3-6.001Z" />
+                </svg>
+                <h1 class="text-xl font-semibold text-slate-700">Instant Translate</h1>
+            </div>
+            </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-start sm:justify-center py-6 sm:py-10 w-full px-4">
+        <div class="bg-white p-5 sm:p-8 rounded-xl shadow-2xl w-full max-w-4xl space-y-6">
+            
+            <h2 class="text-2xl sm:text-3xl font-bold text-center text-slate-800">Translate Text Instantly</h2>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div class="flex-1 w-full sm:w-auto">
+                    <label for="targetLanguage" class="block text-sm font-medium text-slate-700 mb-1">Translate to:</label>
+                    <select id="targetLanguage" 
+                            class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white shadow-sm text-slate-700">
+                        </select>
+                </div>
+                </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                <div class="flex flex-col gap-2 p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="sourceText" class="text-slate-700 font-semibold text-sm">Source Text</label>
+                        <span id="detectedLanguage" class="text-xs text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">Detecting...</span>
+                    </div>
+                    <textarea id="sourceText" 
+                              class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 flex-grow min-h-[180px] sm:min-h-[220px] text-slate-700 placeholder-slate-400" 
+                              placeholder="Enter text to translate..."></textarea>
+                    </div>
+                
+                <div class="flex flex-col gap-2 p-4 border border-slate-200 rounded-xl bg-slate-50 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="translatedText" class="text-slate-700 font-semibold text-sm">Translated Text</label>
+                        <button id="copyButton" title="Copy translated text" class="group p-2 rounded-full hover:bg-slate-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a2.25 2.25 0 0 1-2.25 2.25h-1.5a2.25 2.25 0 0 1-2.25-2.25V3.499c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+                            </svg>
+                            <span class="sr-only">Copy translated text</span>
+                        </button>
+                    </div>
+                    <textarea id="translatedText" 
+                              class="w-full p-3 border border-slate-300 rounded-lg bg-slate-100 text-slate-700 focus:outline-none flex-grow min-h-[180px] sm:min-h-[220px] placeholder-slate-400" 
+                              placeholder="Translation will appear here" readonly></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-center pt-4">
+                <button id="translateButton" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center justify-center gap-2.5 text-base">
+                    <svg id="translateIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 .42-4.823a1.125 1.125 0 0 1 1.125-1.125h9.75c.566 0 1.059.223 1.427.586A11.116 11.116 0 0 1 18 5.621m-15 0A11.039 11.039 0 0 0 6 11.621V16.5a1.5 1.5 0 0 0 .832 1.342l5.143 2.571a.375.375 0 0 0 .332 0l5.143-2.571A1.5 1.5 0 0 0 18 16.5v-4.879a11.038 11.038 0 0 0 3-6.001Z" />
+                    </svg>
+                    <span id="buttonText">Translate</span>
+                    <div id="loadingSpinner" class="loading-spinner hidden"></div>
+                </button>
+            </div>
+            
+            <div id="errorMessage" class="text-red-600 text-center text-sm pt-2 hidden"></div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-200/70 text-slate-600 text-center py-5 px-4 sm:px-6 lg:px-8 text-xs sm:text-sm w-full mt-auto">
+        <div class="max-w-7xl mx-auto">
+            <p>&copy; <span id="currentYear"></span> Konstant.</p>
+            <div class="mt-2 space-x-3 sm:space-x-4">
+                <a href="/docs" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">API Docs (Swagger)</a>
+                <span class="text-slate-400">|</span>
+                <a href="/redoc" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">API Docs (ReDoc)</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        const sourceTextarea = document.getElementById('sourceText');
+        const translatedTextarea = document.getElementById('translatedText');
+        const targetLanguageSelect = document.getElementById('targetLanguage');
+        const detectedLanguageSpan = document.getElementById('detectedLanguage');
+        const copyButton = document.getElementById('copyButton');
+        const translateButton = document.getElementById('translateButton');
+        const buttonText = document.getElementById('buttonText'); // The span inside the button
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const translateIcon = document.getElementById('translateIcon'); // The SVG icon in the button
+        const errorMessageDiv = document.getElementById('errorMessage');
+
+        let debounceTimer;
+
+        async function populateLanguages() {
+            try {
+                const response = await fetch('/languages');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const languages = await response.json();
+                const sortedLanguages = Object.entries(languages)
+                    .map(([code, name]) => ({ code, name: name.charAt(0).toUpperCase() + name.slice(1) })) // Capitalize names
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                // Add English first if present, then others
+                const enOption = sortedLanguages.find(lang => lang.code === 'en');
+                if (enOption) {
+                    const option = document.createElement('option');
+                    option.value = enOption.code;
+                    option.textContent = enOption.name;
+                    targetLanguageSelect.appendChild(option);
+                }
+
+                sortedLanguages.forEach(({ code, name }) => {
+                    if (code !== 'en') { // Avoid duplicating English
+                        const option = document.createElement('option');
+                        option.value = code;
+                        option.textContent = name;
+                        targetLanguageSelect.appendChild(option);
+                    }
+                });
+                targetLanguageSelect.value = 'en'; // Default to English
+            } catch (error) {
+                console.error('Error fetching languages:', error);
+                errorMessageDiv.textContent = 'Failed to load languages. Please try again later.';
+                errorMessageDiv.classList.remove('hidden');
+            }
+        }
+
+        async function performTranslation() {
+            const text = sourceTextarea.value.trim();
+            const destLanguage = targetLanguageSelect.value;
+
+            if (!text) {
+                translatedTextarea.value = '';
+                detectedLanguageSpan.textContent = 'Detecting...';
+                detectedLanguageSpan.classList.remove('bg-green-100', 'text-green-700', 'border-green-300');
+                detectedLanguageSpan.classList.add('bg-slate-100', 'text-slate-600', 'border-slate-200');
+                errorMessageDiv.classList.add('hidden');
+                return;
+            }
+
+            buttonText.textContent = 'Translating...';
+            loadingSpinner.classList.remove('hidden');
+            translateIcon.classList.add('hidden'); // Hide icon when loading
+            translateButton.disabled = true;
+            errorMessageDiv.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('text', text);
+            formData.append('dest_language', destLanguage);
+
+            try {
+                const response = await fetch('/translate', { method: 'POST', body: formData });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: `HTTP error! Status: ${response.status}` }));
+                    throw new Error(errorData.error || `Translation service failed.`);
+                }
+                const data = await response.json();
+                translatedTextarea.value = data.translated_text;
+                
+                detectedLanguageSpan.textContent = `${data.source_language_name} (Detected)`;
+                detectedLanguageSpan.classList.remove('bg-slate-100', 'text-slate-600', 'border-slate-200');
+                detectedLanguageSpan.classList.add('bg-green-100', 'text-green-700', 'border-green-300', 'font-medium');
+
+                errorMessageDiv.classList.add('hidden');
+            } catch (error) {
+                console.error('Error during translation:', error);
+                translatedTextarea.value = '';
+                detectedLanguageSpan.textContent = 'Detection Failed';
+                detectedLanguageSpan.classList.remove('bg-green-100', 'text-green-700', 'border-green-300');
+                detectedLanguageSpan.classList.add('bg-red-100', 'text-red-700', 'border-red-300', 'font-medium');
+                errorMessageDiv.textContent = `Translation error: ${error.message}. Please try again.`;
+                errorMessageDiv.classList.remove('hidden');
+            } finally {
+                buttonText.textContent = 'Translate';
+                loadingSpinner.classList.add('hidden');
+                translateIcon.classList.remove('hidden'); // Show icon again
+                translateButton.disabled = false;
+            }
+        }
+
+        sourceTextarea.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            if (sourceTextarea.value.trim() === '') { // If cleared, reset UI
+                translatedTextarea.value = '';
+                detectedLanguageSpan.textContent = 'Detecting...';
+                detectedLanguageSpan.classList.remove('bg-green-100', 'text-green-700', 'border-green-300', 'font-medium', 'bg-red-100', 'text-red-700', 'border-red-300');
+                detectedLanguageSpan.classList.add('bg-slate-100', 'text-slate-600', 'border-slate-200');
+                errorMessageDiv.classList.add('hidden');
+            } else {
+                debounceTimer = setTimeout(performTranslation, 600); // Slightly longer debounce
+            }
+        });
+
+        targetLanguageSelect.addEventListener('change', () => {
+            if (sourceTextarea.value.trim()) { // Only translate if there's source text
+                performTranslation();
+            }
+        });
+        translateButton.addEventListener('click', performTranslation);
+
+        copyButton.addEventListener('click', () => {
+            if (!translatedTextarea.value) return;
+            translatedTextarea.select();
+            try {
+                navigator.clipboard.writeText(translatedTextarea.value).then(() => {
+                    const originalTooltip = copyButton.title;
+                    copyButton.title = 'Copied!';
+                    // Simple visual feedback: change icon color briefly
+                    const icon = copyButton.querySelector('svg');
+                    icon.classList.remove('text-slate-500', 'group-hover:text-blue-600');
+                    icon.classList.add('text-green-500');
+
+                    setTimeout(() => {
+                        copyButton.title = originalTooltip;
+                        icon.classList.remove('text-green-500');
+                        icon.classList.add('text-slate-500', 'group-hover:text-blue-600');
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Fallback copy: Failed to copy text with navigator.clipboard: ', err);
+                    // Fallback for older browsers using execCommand
+                    document.execCommand('copy'); 
+                    // Visual feedback for fallback (can be simpler or similar)
+                });
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                errorMessageDiv.textContent = 'Failed to copy text. Please copy manually.';
+                errorMessageDiv.classList.remove('hidden');
+                setTimeout(() => errorMessageDiv.classList.add('hidden'), 3000);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', populateLanguages);
+    </script>
+</body>
+</html>
